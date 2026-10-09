@@ -1,0 +1,37 @@
+{
+  "name": "geometry-proof-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render cuboid-perpendicular out/cuboid-perpendicular.mp4",
+    "render:cuboid": "remotion render cuboid-perpendicular out/cuboid-perpendicular.mp4",
+    "render:conic": "remotion render conic-chord out/conic-chord.mp4",
+    "render:circle": "remotion render circle-incenter out/circle-incenter.mp4",
+    "render:all": "npm run render:cuboid && npm run render:conic",
+    "fonts": "node scripts/build-fonts.mjs",
+    "check": "node scripts/check-charset.mjs && tsc --noEmit && npm run check:narration",
+    "tts": "node scripts/tts.mjs",
+    "check:narration": "tsx scripts/check-narration.ts",
+    "timeline": "tsx scripts/dump-timeline.ts",
+    "mux": "node scripts/mux-audio.mjs",
+    "verify:sync": "node scripts/verify-sync.mjs",
+    "voiced:circle": "npm run check:narration -- circle-incenter && npm run timeline -- circle-incenter && npm run render:circle && npm run mux -- circle-incenter && npm run verify:sync -- circle-incenter",
+    "player": "node scripts/build-player.mjs",
+    "serve:player": "node scripts/serve-player.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.534",
+    "@remotion/fonts": "^4.0.534",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.534"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
