@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>题目讲解 · 逐步播放</title>
+<link rel="stylesheet" href="./bundle.css" />
+<style>
+  @font-face { font-family: "Noto Sans SC"; src: url("./fonts/sans-400.woff2") format("woff2");
+    font-weight: 400 900; font-display: block; }
+  @font-face { font-family: "Noto Serif SC"; src: url("./fonts/serif-400.woff2") format("woff2");
+    font-weight: 400 900; font-display: block; }
+  .film { display: flex; justify-content: center; padding: 8px 40px 28px; }
+  .film video { width: 100%; max-width: 1100px; border-radius: 14px;
+    box-shadow: 0 6px 28px rgba(22,32,43,0.12); background: #0F172A; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="./bundle.js"></script>
+<script>
+// 同一道题，两种看法：上面是逐步播放器（点步骤、拖动进度），下面是成片。
+// 成片的路径由构建脚本写进来；空字符串就整块不渲染，不在页面上留一个坏播放器。
+(function () {
+  var film = "../quad-pyramid-dihedral.mp4";
+  var webm = "../player.webm";
+  if (!film && !webm) return;
+  var wrap = document.createElement("div");
+  wrap.className = "film";
+  // 先放 webm（小、GitHub Pages 直接给 video/webm），再放 mp4 兜底：
+  // Pages 给 .mp4 的 Content-Type 是 octet-stream，Chrome 会拒播，所以顺序不能反。
+  var sources = [];
+  if (webm) sources.push('<source src="' + webm + '" type="video/webm">');
+  if (film) sources.push('<source src="' + film + '" type="video/mp4">');
+  wrap.innerHTML =
+    '<video controls preload="metadata" playsinline>' + sources.join("") + "</video>";
+  document.body.appendChild(wrap);
+})();
+</script>
+</body>
+</html>

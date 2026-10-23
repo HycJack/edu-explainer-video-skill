@@ -70,6 +70,31 @@
 
 ---
 
+## 也可以点着看：可交互页
+
+同一条片的另一种看法 —— **逐步播放器**：右侧列出全部 13 步，点一步就跳到那一步；底下能
+拖进度、能自动播放；快捷键 `←` `→` 换步、`空格` 播放、`Home` 回开头；页尾同时挂着成片。
+
+![可交互播放器](videos/全国1-17/screenshots/07-player.jpg)
+
+页面不是重新画的：它渲染的就是渲染 MP4 用的那套组件、那份编译好的时间线（浏览器里把
+`remotion` 换成一个约 250 行的同构运行时），所以点和看不会走样。
+
+> **仓库里没有放打包好的页面。** 因为它要 import 框架里的 `src/`，等于把整个框架再复制一遍
+> （约 27 个源文件，之后每次改框架都得同步两份）。想上网就一句话生成：
+>
+> ```bash
+> cd assets/framework && npm install
+> npm run player -- <你的题目 id>     # -> out/player/
+> npm run serve:player                # -> http://localhost:8080/
+> ```
+>
+> 要挂到 GitHub Pages 上，记得先压一条 `player.webm` 放在页面目录旁边：GitHub Pages 把 `.mp4`
+> 当 `application/octet-stream` 发，Chrome 会拒播，而 `.webm` 的 MIME 是对的（页面里 webm 在
+> 前、mp4 兜底）。详细参数见 `SKILL.md` 的 “Also ship it as something clickable”。
+
+---
+
 ## 包里有什么
 
 ```
@@ -81,7 +106,8 @@ edu-explainer-video/
 │   ├── gallery/                      每个构建器真实渲染的一帧（22 张）
 │   └── lessons-learned.md            踩过的坑，和每个坑换来的一条规则
 ├── videos/                           成品与题图，README 里的封面和截图都取自这里
-│   └── 全国1-17/                     四棱锥 P-ABCD：成片 + 原题图 + 6 张分步截图 + 时间线拼图
+│   └── 全国1-17/                     四棱锥 P-ABCD：成片（mp4/webm）+ 原题图 +
+│                                     6 张分步截图 + 时间线拼图 + 播放器截图
 └── assets/
     └── framework/                    框架本体（可直接运行的 Remotion 项目）
         ├── src/framework/            编译器、图元渲染器、面板、符号系统、旁白时钟
@@ -142,7 +168,7 @@ npm run check                    # 漏字体检 + TypeScript + 行数对齐
 npm run voiced:circle            # 旁白稿 → 合成 → 混音 → 机械校验 → 成片
 
 # 可交互 HTML（带配音 / 不带配音可切换）：
-npm run player && npm run serve:player   # -> http://localhost:8080/
+npm run player -- <content-id> && npm run serve:player   # -> http://localhost:8080/
 ```
 
 加一道新题，看 `SKILL.md` 的「Adding a problem」，三步。

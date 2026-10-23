@@ -21,7 +21,6 @@ import type { Timeline } from "../framework/compile";
  * different films, not the same film with and without sound.
  */
 
-const ID = "circle-incenter";
 const FPS = 30;
 const WIDTH = 1920;
 const HEIGHT = 1080;
@@ -31,9 +30,10 @@ const clock = (frames: number) => {
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 };
 
-export const App: React.FC = () => {
-  const content = useMemo(() => getContent(ID), []);
-  const narration = useMemo(() => getNarration(ID), []);
+export const App: React.FC<{ readonly contentId: string }> = ({ contentId }) => {
+  const ID = contentId;
+  const content = useMemo(() => getContent(ID), [ID]);
+  const narration = useMemo(() => getNarration(ID), [ID]);
   const voicedTl = useMemo(() => compile(content, narration, FPS), [content, narration]);
   const silentTl = useMemo(() => compile(content, undefined, FPS), [content]);
 
@@ -215,7 +215,9 @@ export const App: React.FC = () => {
           <button className={voiced ? "" : "on"} onClick={() => switchMode(false)}>
             不带配音 · {clock(silentTl.total)}
           </button>
-          <span className="hint">两种时间线，同一个题目</span>
+          <span className="hint">
+            {hasVoice ? "两种时间线，同一个题目" : "尚未生成配音，两条时间线相同"}
+          </span>
         </div>
       </div>
 
@@ -236,7 +238,11 @@ export const App: React.FC = () => {
             <h2>当前这句</h2>
             <div className="now">
               <span className="label">{current?.step.heading || current?.step.id}</span>
-              {voiced ? spokenLine || "（等待下一句）" : "静默版：按无配音时间线播放"}
+              {voiced
+                ? hasVoice
+                  ? spokenLine || "（等待下一句）"
+                  : "没有配音稿：这条时间线就是成片那条，静音播放"
+                : "静默版：按无配音时间线播放"}
             </div>
           </div>
           <div className="panelbox">

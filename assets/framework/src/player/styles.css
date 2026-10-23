@@ -22,7 +22,9 @@ html, body {
 }
 
 .app {
-  min-height: 100vh;
+  /* Fill the viewport instead of forcing 100vh: the page may carry more than the
+     stepper (the MP4, in the hosted build), and a min-height here stretched the
+     body and left the film below the fold with a band of empty background. */
   display: flex;
   flex-direction: column;
   gap: 14px;

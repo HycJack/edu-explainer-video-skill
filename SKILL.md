@@ -256,9 +256,28 @@ shorten it, cut sentences; never push the rate past natural.
 ## Also ship it as something clickable
 
 ```bash
-npm run player         # -> out/player/  (bundle + fonts + voice.m4a)
-npm run serve:player   # -> http://localhost:8080/  (Range-capable server)
+npm run player -- <content-id>   # -> out/player/  (bundle + fonts + voice.m4a)
+npm run serve:player             # -> http://localhost:8080/  (Range-capable server)
 ```
+
+The id is baked into the bundle by `scripts/build-player.mjs` (esbuild `define`s
+`__CONTENT_ID__`); with no id it falls back to `circle-incenter`. **Add the new
+content file to the import list in `src/player/index.tsx`** — content registers
+on import, and esbuild only follows what is named there.
+
+Publishing it next to other files (a repo, a static host) instead of `out/`:
+
+```bash
+PLAYER_OUT=../site/player SITE_PREFIX=../ FILM_FILE=<id>.mp4 \
+  node scripts/build-player.mjs <content-id>
+```
+
+`PLAYER_OUT` is where the page is written, `SITE_PREFIX` makes the page look for
+`player.webm` / the MP4 one level up (so the film is stored once), and `FILM_FILE`
+adds the plain `<video>` under the stepper. **Encode a `player.webm` for GitHub
+Pages**: Pages serves `.mp4` as `application/octet-stream` and Chrome refuses to
+play it, while `.webm` comes back as `video/webm` — the page lists webm first and
+mp4 second for exactly that reason.
 
 `src/player/App.tsx` renders the same `ProofVideo` with `remotion` aliased, at
 bundle time, to `src/player/runtime.tsx` — a ~250-line Remotion-compatible
