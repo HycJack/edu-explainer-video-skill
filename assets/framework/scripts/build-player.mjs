@@ -111,13 +111,17 @@ if (existsSync(measured)) {
   sound = true;
 }
 
-// The film that sits next to this bundle, if the caller pointed at one.
+// The film and the webm fallback sit next to this bundle, in the folder that
+// hosts it. Only advertise a source whose file is actually there: a <source>
+// pointing at a missing file is a silent failure that looks like the page is
+// broken. Sibling of OUT is where a repo keeps them (player/ next to the mp4).
+const beside = (name) =>
+  name && (existsSync(join(OUT, "..", name)) || existsSync(join(OUT, name)))
+    ? SITE_PREFIX + name
+    : "";
 const FILM_FILE = process.env.FILM_FILE ?? "";
-const FILM_URL = FILM_FILE
-  ? SITE_PREFIX + FILM_FILE.split(/[\\/]/).pop()
-  : "";
-
-const WEBM = SITE_PREFIX + "player.webm";
+const FILM_URL = beside(FILM_FILE.split(/[\\/]/).pop());
+const WEBM = beside(process.env.WEBM_FILE ?? "player.webm");
 writeFileSync(
   join(OUT, "index.html"),
   `<!doctype html>
