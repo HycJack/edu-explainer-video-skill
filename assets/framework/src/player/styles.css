@@ -201,7 +201,24 @@ html, body {
 }
 
 .controls button.primary { background: var(--accent); border-color: var(--accent); color: #fff; min-width: 88px; }
-.controls button:hover { border-color: var(--accent); }
+.controls button:hover:not(:disabled) { border-color: var(--accent); }
+
+/* A dead button has to look dead: the end of the film is a real place, and a
+   button that still looks pressable but does nothing reads as a broken player. */
+.controls button:disabled {
+  color: var(--faint);
+  border-color: var(--line);
+  background: #fafafa;
+  cursor: default;
+}
+
+.stepno {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  min-width: 46px;
+  text-align: center;
+}
 
 .time { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); min-width: 104px; text-align: center; }
 

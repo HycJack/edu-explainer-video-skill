@@ -180,14 +180,35 @@ export const App: React.FC<{ readonly contentId: string }> = ({ contentId }) => 
   // Land on the step's first spoken line, not on its first frame: the panel
   // fades in over ~0.6 s, so `from + 1` is an empty box, and `from + 20` has
   // already lost the opening of the sentence.
-  const jumpTo = (i: number) => {
-    const s = tl.steps[i];
-    if (!s) return;
-    const first = s.lineAt[0] ?? 18;
-    seek(Math.min(s.from + first, s.from + s.dur - 3));
-  };
+  //
+  // "Next" means the next step, not "the next step boundary ahead of this
+  // frame". While playing (or after a scrub) the frame can already be hundreds
+  // of frames inside the current step, so anchoring on the frame made 下一步 skip
+  // a whole step and appear unable to reach the last one. Stepping is anchored
+  // on the step the playhead is standing in.
+  const landOn = useCallback(
+    (i: number) => {
+      const s = tl.steps[i];
+      if (!s) return;
+      const first = s.lineAt[0] ?? 18;
+      seek(Math.min(s.from + first, s.from + s.dur - 3));
+    },
+    [tl, seek],
+  );
 
-  const goto = (delta: number) => jumpTo(Math.max(0, Math.min(tl.steps.length - 1, stepIndex + delta)));
+  const jumpTo = (i: number) => landOn(i);
+  const atEnd = frame >= tl.total - 2;
+  const canPrev = stepIndex > 0;
+  const canNext = stepIndex < tl.steps.length - 1 || !atEnd;
+
+  // At the very end there is no next step, and seeking to the end is a no-op —
+  // so the last step would be unreachable once the film had played out. Rewind
+  // instead, which is what a "next" button does when it has nowhere to go.
+  const goto = (delta: number) => {
+    const target = stepIndex + delta;
+    if (target >= tl.steps.length) return seek(tl.total - 1);
+    landOn(Math.max(0, target));
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -267,8 +288,15 @@ export const App: React.FC<{ readonly contentId: string }> = ({ contentId }) => 
         <button className="primary" onClick={() => setPlaying((p) => !p)}>
           {playing ? "暂停" : "播放"}
         </button>
-        <button onClick={() => goto(-1)}>上一步</button>
-        <button onClick={() => goto(1)}>下一步</button>
+        <button onClick={() => goto(-1)} disabled={!canPrev} title="上一步（←）">
+          上一步
+        </button>
+        <button onClick={() => goto(1)} disabled={!canNext} title="下一步（→）">
+          下一步
+        </button>
+        <span className="stepno">
+          {stepIndex + 1} / {tl.steps.length}
+        </span>
         <span className="time">
           {clock(frame)} / {clock(tl.total)}
         </span>
